@@ -60,26 +60,10 @@ import authHeader from '../services/auth-header';
         loadingWallets: false
       }
     },
+    created() {
+      this.carregarCarteiras();
+    },
     methods: {
-      logar() {
-        this.message = "";
-        this.loading = true;
-        this.$store.dispatch('auth/login', JSON.stringify(
-            {
-              email: this.email,
-              password: this.senha
-            }
-          )).then(
-            () => {
-              this.loading = false;
-              this.$router.push('/home');
-            },
-            error => {
-              this.loading = false;
-              this.message = error?.toString() + " - " + error.response?.data[0]?.message;
-            }
-          );
-      },
       addOrUpdateWallet(wallet) { 
           if (wallet.name == "Nova Carteira") {
             this.showInputCarteira = true;
@@ -122,11 +106,7 @@ import authHeader from '../services/auth-header';
             "name": this.nomeCarteira
           }
         ), { headers: authHeader() })
-        .then((response) => {
-            return response.data;
-        })
-        .catch((error) => {
-          // handle error
+        .catch(error => {
           console.log(error);
         })
         .finally(() => {
@@ -138,14 +118,13 @@ import authHeader from '../services/auth-header';
     carregarCarteiras() {
       this.loadingWallets = true;
       axios.get(`wallet/${this.$store.state.auth.user.id}`, { headers: authHeader() })
-        .catch(function (error) {
-          // handle error
-          console.log(error);
-        })
         .then(response => {
             this.allWallets = response;
         })
-        .then(() => {
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
           this.loadingWallets = false;
         });
     }
@@ -185,7 +164,7 @@ import authHeader from '../services/auth-header';
   },
   watch: { // eslint-disable-next-line
       '$route' (to, from) {
-          alert("Carregar Carteiras");
+          this.carregarCarteiras();
       }
   }
 }
