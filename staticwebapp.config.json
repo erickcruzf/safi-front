@@ -1,0 +1,15 @@
+
+{
+    "routes": [
+        {
+          "route": "/home*",
+          "rewrite": "src/views/AreaLogada.vue"
+        }
+    ],
+    "navigationFallback": {
+        "rewrite": "index.html"
+    },
+    "mimeTypes": {
+        ".json": "text/json"
+    }
+}
