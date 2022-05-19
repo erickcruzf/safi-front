@@ -35,7 +35,7 @@
           <b-button id="buttonVoltar" variant="link" class="w-25 inputsDinamicos mt-2" @click="voltarLogin">Voltar ao Login</b-button>
         </div>
 
-        <div class="d-flex flex-column align-items-center" v-else-if="showCadastro">
+        <div class="d-flex flex-column align-items-center" v-else-if="showCadastro && !showEsqueci">
           <div class="mb-2 w-25 inputsDinamicos">
             <span class="d-flex flex-start pl-2">Nome:</span>
             <b-form-input v-model="nome" placeholder="Primeiro Nome" :state="stateCadastro.Nome"></b-form-input>
@@ -70,15 +70,14 @@
           </b-popover>
           <b-button id="buttonCadastrar" variant="outline-primary" class="w-25 inputsDinamicos buttonMain" @click="cadastrar">Cadastrar</b-button>
           <b-button id="buttonVoltar" variant="link" class="w-25 inputsDinamicos mt-2" @click="voltarLogin">Voltar ao Login</b-button>
-
-          <b-modal ref="my-modal" hide-footer hide-header>
-            <div class="d-block text-center">
-              <h3>Operação Realizada Com Sucesso!<br>Confirme o email para continuar.<br>Fique atento a caixa de spam.</h3>
-            </div>
-            <b-button class="mt-3" variant="outline-success" block @click="hideModal">Ok</b-button>
-          </b-modal>
         </div>
       </template>
+      <b-modal ref="my-modal" hide-footer hide-header>
+        <div class="d-block text-center">
+          <h3>Operação Realizada Com Sucesso!<br>Confirme o email para continuar.<br>Fique atento a caixa de spam.</h3>
+        </div>
+        <b-button class="mt-3" variant="outline-success" block @click="hideModal">Ok</b-button>
+      </b-modal>
     </div>
   </div>
 </template>
@@ -177,6 +176,8 @@ import axios from 'axios';
       },
       hideModal() {
         this.$refs['my-modal'].hide();
+        this.resetCadastro();
+        this.showCadastro = false;
       },
       msgSenha() {
         var msg = [];
