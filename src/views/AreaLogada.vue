@@ -26,7 +26,7 @@
                     </b-card-text>
                     <div v-else-if="showInputCarteira">
                       <div class="d-flex flex-column align-items-center">
-                        <div class="mb-2 w-25 inputsDinamicos">
+                        <div class="mb-2 w-75 inputsDinamicos">
                           <span class="d-flex flex-start pl-2">Nome:</span>
                           <b-form-input v-model="nomeCarteira"></b-form-input>
                         </div>
@@ -204,7 +204,7 @@ import authHeader from '../services/auth-header';
 }
 
 .inputsDinamicos {
-  min-width: 19rem;
+  min-width: 11rem;
   max-width: 25rem;
 }
 </style>

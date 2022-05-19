@@ -163,7 +163,6 @@ import axios from 'axios';
           )).then(
             () => {
               this.loading = false;
-              this.$router.push('/home');
               this.showModal();
             },
             error => {
