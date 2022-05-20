@@ -87,6 +87,7 @@ export default {
   border-radius: 1rem;
   margin-top: 2px;
   margin-right: 2px;
+  max-width: 15rem;
 }
 
 #body {
