@@ -32,7 +32,7 @@
             <b-form-input v-model="email" placeholder="exemplo@email.com.br"></b-form-input>
           </div>
           <b-button id="buttonLogin" variant="outline-primary" class="w-25 inputsDinamicos buttonMain" @click="logar">Enviar Email</b-button>
-          <b-button id="buttonVoltar" variant="link" class="w-25 inputsDinamicos mt-2" @click="voltarLogin">Voltar ao Login</b-button>
+          <b-button id="buttonVoltar" variant="link" class="w-25 inputsDinamicos mt-2" @click="voltarLoginSenha">Voltar ao Login</b-button>
         </div>
 
         <div class="d-flex flex-column align-items-center" v-else-if="showCadastro && !showEsqueci">
@@ -197,6 +197,10 @@ import axios from 'axios';
     },
     voltarLogin() {
       this.showCadastro = !this.showCadastro;
+      this.message = "";
+    },
+    voltarLoginSenha() {
+      this.showEsqueci = !this.showEsqueci;
       this.message = "";
     }
   },

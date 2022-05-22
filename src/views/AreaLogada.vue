@@ -51,10 +51,10 @@
         </b-card-group>
         <b-modal ref="confirmationModal" hide-footer hide-header>
           <div class="d-block text-center">
-            <h3>Tem certeza que deseja deletar essa carteira?.</h3>
+            <h3>Tem certeza que deseja deletar essa carteira?</h3>
           </div>
-          <b-button class="mt-3" variant="outline-danger" block @click="cancelDelete">Cancelar</b-button>
           <b-button class="mt-3" variant="outline-success" block @click="confirmDelete">Sim</b-button>
+          <b-button class="mt-3" variant="outline-danger" block @click="cancelDelete">Cancelar</b-button>
         </b-modal>
     </div>
 </template>
@@ -85,7 +85,7 @@ import authHeader from '../services/auth-header';
             this.showInputCarteira = true;
           }
           else {
-            alert("Carregar Detalhes");
+            this.$router.push(`/wallet/${wallet.id}`);
           }
       },
       showModal() {
@@ -94,137 +94,117 @@ import authHeader from '../services/auth-header';
       hideModal() {
         this.$refs['my-modal'].hide();
       },
-      msgSenha() {
-        var msg = [];
-        if(this.senhasNaoBatem || this.senhaMenor) {
-            if(this.senhasNaoBatem) {
-              msg.push("As senhas não batem.");
+      confirmarNovaCarteira() {
+        let that = this;
+        axios.post('wallet', JSON.stringify(
+            {
+              "userId": this.$store.state.auth.user.id,
+              "name": this.nomeCarteira
             }
-            if(this.senhaMenor) {
-              msg.push("A senha tem de ser maior que 4 caracteres.");
-            }
-          }
-        return msg;
-    },
-    resetCadastro() {
-      this.stateCadastro = {Nome: null, Sobrenome: null, Email: null};
-      this.nome = this.sobrenome = this.email = this.senha = this.confirmacaoSenha = "";
-    },
-    voltarLogin() {
-      this.showCadastro = !this.showCadastro;
-      this.message = "";
-    },
-    confirmarNovaCarteira() {
-      let that = this;
-      axios.post('wallet', JSON.stringify(
-          {
-            "userId": this.$store.state.auth.user.id,
-            "name": this.nomeCarteira
-          }
-        ), { headers: authHeader() })
-        .catch(error => {
-          console.log(error);
-        })
-        .finally(() => {
-          that.nomeCarteira = "";
-          that.showInputCarteira = false;
-          that.carregarCarteiras();
+          ), { headers: authHeader() })
+          .catch(error => {
+            console.log(error);
+          })
+          .finally(() => {
+            that.nomeCarteira = "";
+            that.showInputCarteira = false;
+            that.carregarCarteiras();
+          });
+      },
+      carregarCarteiras() {
+        this.loadingWallets = true;
+        axios.get(`wallet/${this.$store.state.auth.user.id}/userId`, { headers: authHeader() })
+          .then(response => {
+            this.allWallets = response.data;
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+          .finally(() => {
+            this.loadingWallets = false;
+          });
+      },
+      formatHoldings(wallet) {
+        var totalAux = 0;
+        wallet.walletCurrency.forEach(coin => {
+          coin.totalValue = coin.averagePrice * coin.quantity;
+          totalAux += coin.totalValue;
         });
-    },
-    carregarCarteiras() {
-      this.loadingWallets = true;
-      axios.get(`wallet/${this.$store.state.auth.user.id}/userId`, { headers: authHeader() })
-        .then(response => {
-          this.allWallets = response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          this.loadingWallets = false;
+        wallet.walletCurrency.forEach(coin => {
+          coin.percent = ((coin.totalValue * 100) / totalAux);
         });
-    },
-    formatHoldings(wallet) {
-      var totalAux = 0;
-      wallet.walletCurrency.forEach(coin => {
-        coin.totalValue = coin.averagePrice * coin.quantity;
-        totalAux += coin.totalValue;
-      });
-      wallet.walletCurrency.forEach(coin => {
-        coin.percent = ((coin.totalValue * 100) / totalAux);
-      });
-      
-      return wallet.walletCurrency.slice().sort((x, y) => x.percent < y.percent ? 1 : -1).slice(0, 3);
-    },
-    deletarCarteira() {
-      axios.delete(`wallet/${this.walletDelete.id}`, { headers: authHeader() })
-        .then(() => {
-          this.allWallets.splice(this.allWallets.findIndex(x => x.id == this.walletDelete.id), 1);
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          this.loadingWallets = false;
-        });
-    },
-    showConfirmation(wallet) {
-      this.$refs['confirmationModal'].show();
-      this.walletDelete = wallet;
-    },
-    cancelDelete() {
-      this.$refs['confirmationModal'].hide();
-      this.walletDelete = {};
-    },
-    confirmDelete() {
-      this.$refs['confirmationModal'].hide();
-      this.deletarCarteira();
-    }
-  },
-  computed: {
-    walletDivisions() {
-        var aux = 0;
-        var newLista = [];
-        var listOfLists = [];
-        var newWallet = {name: "Nova Carteira"};
-
-        if(!this.allWallets.length) {
-          newLista.push(newWallet);
-          listOfLists.push(newLista);
-        }
-
-        this.allWallets.forEach(wallet => {
-            aux ++;
-            newLista.push(wallet);
-            
-            if (aux == this.allWallets.length) {
-                if (newLista.length < 3) {
-                    newLista.push(newWallet);
-                }
-                else {
-                    listOfLists.push(newLista);
-                    newLista = [];
-                    newLista.push(newWallet);
-                }
-                listOfLists.push(newLista);
-            }
-            else if (aux % 3 == 0) {
-                listOfLists.push(newLista);
-                newLista = [];
-            }
-        });
-
-      return listOfLists;
-    },
-    listaMsg() {
-      return this.msgSenha();
-    }
-  },
-  watch: { // eslint-disable-next-line
-      '$route' (to, from) {
-          this.carregarCarteiras();
+        
+        return wallet.walletCurrency.slice().sort((x, y) => x.percent < y.percent ? 1 : -1).slice(0, 3);
+      },
+      deletarCarteira() {
+        axios.delete(`wallet/${this.walletDelete.id}`, { headers: authHeader() })
+          .then(() => {
+            this.allWallets.splice(this.allWallets.findIndex(x => x.id == this.walletDelete.id), 1);
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+          .finally(() => {
+            this.loadingWallets = false;
+          });
+      },
+      showConfirmation(wallet) {
+        this.$refs['confirmationModal'].show();
+        this.walletDelete = wallet;
+      },
+      cancelDelete() {
+        this.$refs['confirmationModal'].hide();
+        this.walletDelete = {};
+      },
+      confirmDelete() {
+        this.$refs['confirmationModal'].hide();
+        this.deletarCarteira();
       }
-  }
+    },
+    computed: {
+      walletDivisions() {
+          var aux = 0;
+          var newLista = [];
+          var listOfLists = [];
+          var newWallet = {name: "Nova Carteira"};
+
+          if(!this.allWallets.length) {
+            newLista.push(newWallet);
+            listOfLists.push(newLista);
+          }
+
+          this.allWallets.forEach(wallet => {
+              aux ++;
+              newLista.push(wallet);
+              
+              if (aux == this.allWallets.length) {
+                  if (newLista.length < 3) {
+                      newLista.push(newWallet);
+                  }
+                  else {
+                      listOfLists.push(newLista);
+                      newLista = [];
+                      newLista.push(newWallet);
+                  }
+                  listOfLists.push(newLista);
+              }
+              else if (aux % 3 == 0) {
+                  listOfLists.push(newLista);
+                  newLista = [];
+              }
+          });
+
+        return listOfLists;
+      },
+      listaMsg() {
+        return this.msgSenha();
+      }
+    },
+    watch: { // eslint-disable-next-line
+        '$route' (to, from) {
+            this.carregarCarteiras();
+        }
+    }
 }
 </script>
 

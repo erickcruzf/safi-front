@@ -19,6 +19,9 @@ export const auth = {
         }
     );
     },
+    loginOnAction({ commit }, user) {
+      return commit('loginSuccess', user);
+    },
     login({ commit }, user) {
       return AuthService.login(user).then(
         user => {
