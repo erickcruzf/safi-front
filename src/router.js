@@ -5,7 +5,9 @@ import ValidateEmail from './views/ValidateEmail.vue'
 import LoginView from './views/LoginView.vue'
 import CarteiraAberta from './views/CarteiraAberta.vue'
 // eslint-disable-next-line
-import auth from './store/auth.module';
+import globalstore from './store/';
+
+const store = globalstore;
 
 Vue.use(Router)
 
@@ -36,12 +38,10 @@ const router = new Router({
 })
 
 // eslint-disable-next-line
-let store = _store_auth_module__WEBPACK_IMPORTED_MODULE_5__;
-// eslint-disable-next-line
 router.beforeEach((to, from, next) => {
     console.log("To: " + to.name);
-    if (to.name !== 'login' && !store.auth.state.status.loggedIn) next({ name: 'login' })
-    if (to.name === 'login' && store.auth.state.status.loggedIn) next({ name: 'home' })
+    if (to.name !== 'login' && !store.state.auth.status.loggedIn) next({ name: 'login' })
+    if (to.name === 'login' && store.state.auth.status.loggedIn) next({ name: 'home' })
     else next()
     next();
 })
