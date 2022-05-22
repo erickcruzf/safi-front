@@ -309,5 +309,6 @@ import authHeader from '../services/auth-header';
 .mainDiv {
   overflow: auto;
   max-height: 45rem;
+  min-height: 30rem;
 }
 </style>
