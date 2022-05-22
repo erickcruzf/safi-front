@@ -44,7 +44,7 @@
                   {{transaction.nameCurrency}}
               </b-col>
               <b-col md="2" sm="6" class="my-2" v-show="!transaction.isEditing">
-                  {{transaction.currencyValue.toLocaleString('pt-BR', {
+                  {{transaction.amountInvested.toLocaleString('pt-BR', {
                     style: 'currency',
                     currency: 'BRL',
                   })}}
@@ -153,7 +153,7 @@ import authHeader from '../services/auth-header';
                 "transactionStatusId": this.action,
                 "transactionDate": this.dataOperacao,
                 "nameCurrency": this.nomeMoeda,
-                "currencyValue": this.valorOperacao,
+                "amountInvested": this.valorOperacao,
                 "currencyQuantity": this.quantidadeMoeda,
                 "walletId": this.walletId
             }
@@ -233,7 +233,7 @@ import authHeader from '../services/auth-header';
           this.$set(this.transactionEdit, "id", transaction.id);
           this.$set(this.transactionEdit, "dataOperacao", transaction.transactionDate);
           this.$set(this.transactionEdit, "nomeMoeda", transaction.nameCurrency);
-          this.$set(this.transactionEdit, "valorOperacao", transaction.currencyValue);
+          this.$set(this.transactionEdit, "valorOperacao", transaction.amountInvested);
           this.$set(this.transactionEdit, "quantidadeMoeda", transaction.currencyQuantity);
 
         });
@@ -241,7 +241,6 @@ import authHeader from '../services/auth-header';
       cancelarEdicao(transaction) {
         this.transactionEdit = {};
         transaction.isEditing = false;
-        this.transactionEdit.action = 1;
       }
     },
     computed: {
