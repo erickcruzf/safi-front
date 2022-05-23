@@ -119,13 +119,13 @@
                 Deve ser gerado um Darf no valor de {{month.valorDebito.toLocaleString('pt-BR', {
                                                       style: 'currency',
                                                       currency: 'BRL',
-                                                    })}}
+                                                    })}} reais.
                 reais, referentes ao mês de {{month.mes}}.<br>
                 Com prazo de vencimento até a data {{new Date(month.dataExpiracao).toLocaleDateString('pt-BR', {year: 'numeric', month: 'numeric', day: 'numeric'})}}.<br>
                 Volume negociado no período de {{month.volumeVenda.toLocaleString('pt-BR', {
                                                   style: 'currency',
                                                   currency: 'BRL',
-                                                })}}
+                                                })}} reais.
                 reais, Saldo Mensal de <span v-if="month.balanco > 0" class="text-success"> 
                                           + {{month.balanco.toLocaleString('pt-BR', {
                                             style: 'currency',
@@ -137,13 +137,24 @@
                                             style: 'currency',
                                             currency: 'BRL',
                                           })}}
-                                      </span>
+                                      </span> reais.
+              </div>
+              <div class="py-0 text-left" v-else-if="month.balanco < 0">
+                Isento. Prejuízo de <span class="text-danger"> 
+                                          - {{month.balanco.toLocaleString('pt-BR', {
+                                            style: 'currency',
+                                            currency: 'BRL',
+                                          })}}
+                                      </span> reais.
               </div>
               <div class="py-0 text-left" v-else-if="month.volumeVenda > 0">
-                Isento.
+                Isento. Volume de venda de {{month.volumeVenda.toLocaleString('pt-BR', {
+                                                  style: 'currency',
+                                                  currency: 'BRL',
+                                                })}} inferior a cota mínima de R$ 35.000,00 reais.
               </div>
               <div class="py-0 text-left" v-else>
-                Nenhuma movimentação.
+                Nenhuma transação de venda.
               </div>
             </b-card-text>
       </b-card>
