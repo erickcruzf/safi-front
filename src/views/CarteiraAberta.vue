@@ -38,7 +38,7 @@
                   {{transaction.transactionName}}
               </b-col>
               <b-col md="2" sm="6" class="my-2" v-show="!transaction.isEditing">
-                  {{transaction.transactionDate}}
+                  {{new Date(transaction.transactionDate + " 00:00:00").toLocaleDateString("pt-BR")}}
               </b-col>
               <b-col md="2" sm="6" class="my-2" v-show="!transaction.isEditing">
                   {{transaction.nameCurrency}}
