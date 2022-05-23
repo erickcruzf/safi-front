@@ -6,7 +6,7 @@
               <b-button block @click="goHome">Outra Carteira</b-button>
             </b-col>
             <b-col class="text-nowrap my-2">
-              <b-button block variant="success" @click="confirmarNovaTransacao">Calcular Resumo</b-button>
+              <b-button block variant="success" @click="showModalCalculo">Calcular Resumo</b-button>
             </b-col>
           </b-row>
         </div>
@@ -80,7 +80,7 @@
               </b-col>
               <b-col md="2" sm="6" class="my-2" v-show="transaction.isEditing">
                 <b-dropdown id="dropdown-2" text="Opções">
-                  <b-dropdown-item @click="editar(transaction)" variant="success">Confirmar</b-dropdown-item>
+                  <b-dropdown-item @click="confirmarEdicao(transaction)" variant="success">Confirmar</b-dropdown-item>
                   <b-dropdown-item @click="cancelarEdicao(transaction)" variant="danger">Cancelar</b-dropdown-item>
                 </b-dropdown>
               </b-col>
@@ -92,9 +92,61 @@
           <b-button class="mt-3" variant="outline-success" block @click="confirmDelete">Sim</b-button>
           <b-button class="mt-3" variant="outline-danger" block @click="cancelDelete">Cancelar</b-button>
         </b-modal>
+        <b-modal ref="calcularModal" hide-footer hide-header>
+          <div class="d-block text-center">
+            <h3>Selecione o ano para o cálculo</h3>
+            <b-form-select v-model="year" :options="yearOptions"></b-form-select>
+          </div>
+          <b-button class="mt-3" variant="outline-success" block @click="confirmCalculo">Calcular</b-button>
+          <b-button class="mt-3" variant="outline-danger" block @click="hideModalCalculo">Cancelar</b-button>
+        </b-modal>
     </div>
     <div class="mx-3 my-3" v-else>
-      <h1 class="text-left">Resumo</h1>
+      <h1 class="text-left">Resumo {{this.year}}</h1>
+      <b-card v-for="(month,index) in allMonths" :key="index"
+          border-variant="success"
+          header-bg-variant="#2c3e50"
+          header-class= "monthHeader"
+          class="month my-2"
+          header-text-variant="white"
+          align="center"
+          body-class="monthBody">
+          <template #header>
+            <h6 class="mb-0 text-left">Período - {{month.mes}}</h6>
+          </template>
+          <b-card-text>
+              <div class="py-0 text-left" v-if="month.temDebito">
+                Deve ser gerado um Darf no valor de {{month.valorDebito.toLocaleString('pt-BR', {
+                                                      style: 'currency',
+                                                      currency: 'BRL',
+                                                    })}}
+                reais, referentes ao mês de {{month.mes}}.<br>
+                Com prazo de vencimento até a data {{new Date(month.dataExpiracao).toLocaleDateString('pt-BR', {year: 'numeric', month: 'numeric', day: 'numeric'})}}.<br>
+                Volume negociado no período de {{month.volumeVenda.toLocaleString('pt-BR', {
+                                                  style: 'currency',
+                                                  currency: 'BRL',
+                                                })}}
+                reais, Saldo Mensal de <span v-if="month.balanco > 0" class="text-success"> 
+                                          + {{month.balanco.toLocaleString('pt-BR', {
+                                            style: 'currency',
+                                            currency: 'BRL',
+                                          })}}
+                                      </span>
+                                      <span v-else class="text-danger"> 
+                                          - {{month.balanco.toLocaleString('pt-BR', {
+                                            style: 'currency',
+                                            currency: 'BRL',
+                                          })}}
+                                      </span>
+              </div>
+              <div class="py-0 text-left" v-else-if="month.volumeVenda > 0">
+                Isento.
+              </div>
+              <div class="py-0 text-left" v-else>
+                Nenhuma movimentação.
+              </div>
+            </b-card-text>
+      </b-card>
     </div>
 </template>
 
@@ -118,10 +170,11 @@ import authHeader from '../services/auth-header';
         options: [
           { value: 1, text: 'Compra' },
           { value: 2, text: 'Venda' },
-        ],
-        timeValue: "",
+        ],  
+        year: new Date().getFullYear(),
         showResumo: false,
-        transactionEdit: {}
+        transactionEdit: {},
+        allMonths: []
       }
     },
     created() {
@@ -134,17 +187,20 @@ import authHeader from '../services/auth-header';
         }
     },
     methods: {
-      label() {
-          return "text-nowrap";
-      },
       addOrUpdateTransaction(transaction) { 
           return transaction;
       },
       showModal() {
-        this.$refs['my-modal'].show();
+        this.$refs['confirmationModal'].show();
       },
       hideModal() {
-        this.$refs['my-modal'].hide();
+        this.$refs['confirmationModal'].hide();
+      },
+      showModalCalculo() {
+        this.$refs['calcularModal'].show();
+      },
+      hideModalCalculo() {
+        this.$refs['calcularModal'].hide();
       },
       confirmarNovaTransacao() {
         //let that = this;
@@ -241,15 +297,52 @@ import authHeader from '../services/auth-header';
       cancelarEdicao(transaction) {
         this.transactionEdit = {};
         transaction.isEditing = false;
+      },
+      confirmarEdicao(transaction) {
+        axios.put(`transaction/${transaction.id}`, JSON.stringify(
+            {
+                "transactionStatusId": this.transactionEdit.action,
+                "transactionDate": this.transactionEdit.dataOperacao,
+                "nameCurrency": this.transactionEdit.nomeMoeda,
+                "amountInvested": this.transactionEdit.valorOperacao,
+                "currencyQuantity": this.transactionEdit.quantidadeMoeda,
+                "walletId": this.transactionEdit.walletId
+            }), { headers: authHeader() })
+          .then(() => {
+            this.carregarTransacoes();
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+          .finally(() => {
+            this.cancelarEdicao(transaction);
+          });
+      },
+      confirmCalculo() {
+        axios.get(`darf/${this.walletId}/wallet/${this.year}/year`, { headers: authHeader() })
+          .then((response) => {
+            this.showResumo = true;
+            this.allMonths = response.data;
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+          .finally(() => {
+            
+          });
       }
     },
     computed: {
-      
-    },
-    watch: { // eslint-disable-next-line
-        '$route' (to, from) {
-            this.carregarTransacoes();
+      yearOptions() {
+        var initialyear = new Date().getFullYear();
+        var allYears = [];
+        for (let index = 0; index < 13; index++) {
+          allYears.push({
+            text: initialyear - index, value: initialyear - index
+          })          
         }
+        return allYears;
+      }
     }
 }
 </script>
@@ -269,25 +362,22 @@ import authHeader from '../services/auth-header';
     color: #f2f2f2;
 }
 
-.walletHeader {
+.monthHeader {
   background-color: #2c3e50;
   color: #2c3e50;
   font-weight: 700;
 }
 
-.wallet {
+.month {
   min-width: 12rem;
-  max-width: 25rem;
-  min-height: 13rem;
 }
 
-.wallet:hover {
+.month:hover {
   background-color: #354d64;
   color: #f2f2f2;
-  cursor: pointer;
 }
 
-.walletBody {
+.monthBody {
     text-align: left;
 }
 
