@@ -229,6 +229,14 @@ import authHeader from '../services/auth-header';
           })
           .catch(error => {
             console.log(error);
+            const statusCode = error.response ? error.response.status : null;
+            if (statusCode === 403) {
+              this.$store.dispatch('auth/logout').then(
+                () => {
+                  this.$router.push('/');
+                }
+              );
+            }
           })
           .finally(() => {
               
@@ -242,6 +250,14 @@ import authHeader from '../services/auth-header';
           })
           .catch((error) => {
             console.log(error);
+            const statusCode = error.response ? error.response.status : null;
+            if (statusCode === 403) {
+              this.$store.dispatch('auth/logout').then(
+                () => {
+                  this.$router.push('/');
+                }
+              );
+            }
           })
           .finally(() => {
             this.loadingTransactions = false;
@@ -266,6 +282,14 @@ import authHeader from '../services/auth-header';
           })
           .catch((error) => {
             console.log(error);
+            const statusCode = error.response ? error.response.status : null;
+            if (statusCode === 403) {
+              this.$store.dispatch('auth/logout').then(
+                () => {
+                  this.$router.push('/');
+                }
+              );
+            }
           })
           .finally(() => {
             this.loadingWallets = false;
@@ -323,6 +347,14 @@ import authHeader from '../services/auth-header';
           })
           .catch((error) => {
             console.log(error);
+            const statusCode = error.response ? error.response.status : null;
+            if (statusCode === 403) {
+              this.$store.dispatch('auth/logout').then(
+                () => {
+                  this.$router.push('/');
+                }
+              );
+            }
           })
           .finally(() => {
             this.cancelarEdicao(transaction);
@@ -336,6 +368,14 @@ import authHeader from '../services/auth-header';
           })
           .catch((error) => {
             console.log(error);
+            const statusCode = error.response ? error.response.status : null;
+            if (statusCode === 403) {
+              this.$store.dispatch('auth/logout').then(
+                () => {
+                  this.$router.push('/');
+                }
+              );
+            }
           })
           .finally(() => {
             
