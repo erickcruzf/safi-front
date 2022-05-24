@@ -8,19 +8,16 @@ export const auth = {
   state: initialState,
   actions: {
     register({ commit }, user) {
-    return AuthService.register(user).then(
-        response => {
-        commit('registerSuccess');
-        return Promise.resolve(response.data);
-        },
-        error => {
-        commit('registerFailure');
-        return Promise.reject(error);
-        }
-    );
-    },
-    loginOnAction({ commit }, user) {
-      return commit('loginSuccess', user);
+      return AuthService.register(user).then(
+          response => {
+          commit('registerSuccess');
+          return Promise.resolve(response.data);
+          },
+          error => {
+          commit('registerFailure');
+          return Promise.reject(error);
+          }
+      );
     },
     login({ commit }, user) {
       return AuthService.login(user).then(
@@ -51,12 +48,6 @@ export const auth = {
     logout(state) {
       state.status.loggedIn = false;
       state.user = null;
-    },
-    registerSuccess(state) {
-      state.status.loggedIn = false;
-    },
-    registerFailure(state) {
-      state.status.loggedIn = false;
     }
   }
 };
