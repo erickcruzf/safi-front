@@ -119,13 +119,13 @@
                 Deve ser gerado um Darf no valor de {{month.valorDebito.toLocaleString('pt-BR', {
                                                       style: 'currency',
                                                       currency: 'BRL',
-                                                    })}} reais.
+                                                    })}}
                 reais, referentes ao mês de {{month.mes}}.<br>
                 Com prazo de vencimento até a data {{new Date(month.dataExpiracao).toLocaleDateString('pt-BR', {year: 'numeric', month: 'numeric', day: 'numeric'})}}.<br>
                 Volume negociado no período de {{month.volumeVenda.toLocaleString('pt-BR', {
                                                   style: 'currency',
                                                   currency: 'BRL',
-                                                })}} reais.
+                                                })}}
                 reais, Saldo Mensal de <span v-if="month.balanco > 0" class="text-success"> 
                                           + {{month.balanco.toLocaleString('pt-BR', {
                                             style: 'currency',
@@ -214,7 +214,6 @@ import authHeader from '../services/auth-header';
         this.$refs['calcularModal'].hide();
       },
       confirmarNovaTransacao() {
-        //let that = this;
         axios.post('transaction', JSON.stringify(
             {
                 "transactionStatusId": this.action,
