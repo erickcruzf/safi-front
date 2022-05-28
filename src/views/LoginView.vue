@@ -225,25 +225,30 @@
               this.showModal();
               this.passwordRecoveryCode = undefined;
               this.senha = "";
+              this.loading = true;
             },
             error => {
               this.message = error?.toString() + " - " + error.response?.data[0]?.message;
               this.senha = "";
+              this.loading = true;
             }
           );
         }
       },
       esqueciSenha() {
+        this.loading = true;
         this.$store.dispatch('auth/forgot', JSON.stringify(
           {
             email: this.email
           }
         )).then(
           () => {
+            this.loading = false;
             this.showModal();
             this.passwordRecoveryCode = undefined;
           },
           error => {
+            this.loading = false;
             this.message = error?.toString() + " - " + error.response?.data[0]?.message;
           }
         );

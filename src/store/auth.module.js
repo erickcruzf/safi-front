@@ -31,6 +31,28 @@ export const auth = {
         }
       );
     },
+    // eslint-disable-next-line
+    forgot({ commit }, data) {
+      return AuthService.forgot(data).then(
+          response => {
+          return Promise.resolve(response.data);
+          },
+          error => {
+          return Promise.reject(error);
+          }
+      );
+    },
+    // eslint-disable-next-line
+    recovery({ commit }, data) {
+      return AuthService.login(data).then(
+          response => {
+          return Promise.resolve(response.data);
+          },
+          error => {
+          return Promise.reject(error);
+          }
+      );
+    },
     logout({ commit }) {
       AuthService.logout();
       commit('logout');
