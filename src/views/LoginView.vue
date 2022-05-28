@@ -78,13 +78,20 @@
         </div>
         <b-button class="mt-3" variant="outline-success" block @click="hideModal">Ok</b-button>
       </b-modal>
+      <b-modal ref="modalSenha" hide-footer hide-header>
+        <div class="d-block text-center">
+          <h3>Senha Alterada Com Sucesso! Realize login para continuar.</h3>
+        </div>
+        <b-button class="mt-3" variant="outline-success" block @click="hideModalSenha">Ok</b-button>
+      </b-modal>
     </div>
   </div>
   <div v-else>
     <h1>Recuperação de senha</h1>
     <img alt="Safi Logo" src="@/assets/safiLogo.png" class="img-fluid">
     <div>
-      <div class="d-flex flex-column align-items-center">
+      <b-spinner v-if="loading" label="Carregando" class=""></b-spinner>
+      <div class="d-flex flex-column align-items-center" v-else>
         <div class="mb-2 w-25 inputsDinamicos">
           <span class="d-flex flex-start pl-2">Senha:
             <b-icon id="spSenha" v-show="(senhasNaoBatem || senhaMenor) && senhaInvalida" icon="exclamation-lg" variant="warning"></b-icon>
@@ -107,17 +114,12 @@
         </b-popover>
         <b-button id="buttonRecuperarSenha" variant="outline-primary" class="w-25 inputsDinamicos buttonMain" @click="recover">Alterar Senha</b-button>
       </div>
-      <b-modal ref="my-modal" hide-footer hide-header>
-        <div class="d-block text-center">
-          <h3>Senha Alterada Com Sucesso! Realize login para continuar.</h3>
-        </div>
-        <b-button class="mt-3" variant="outline-success" block @click="hideModal">Ok</b-button>
-      </b-modal>
-    </div>
+    </div>    
   </div>
 </template>
 
 <script>
+  import axios from 'axios';
   export default {
     name: 'LoginView',
     data() {
@@ -215,29 +217,31 @@
         }
         if(valido) {
           this.loading = true;
-          this.$store.dispatch('auth/recover', JSON.stringify(
+          axios.post('email/recover', JSON.stringify(
             {
               code: this.passwordRecoveryCode,
               password: this.senha
             }
           )).then(
             () => {
-              this.showModal();
               this.passwordRecoveryCode = undefined;
-              this.senha = "";
-              this.loading = true;
+              this.resetCadastro();
+              this.loading = false;
+              this.$nextTick(() => {
+                this.showModalSenha();
+              });
             },
             error => {
               this.message = error?.toString() + " - " + error.response?.data[0]?.message;
               this.senha = "";
-              this.loading = true;
+              this.loading = false;
             }
           );
         }
       },
       esqueciSenha() {
         this.loading = true;
-        this.$store.dispatch('auth/forgot', JSON.stringify(
+        axios.post('email/forgot', JSON.stringify(
           {
             email: this.email
           }
@@ -260,6 +264,13 @@
         this.$refs['my-modal'].hide();
         this.resetCadastro();
         this.showCadastro = false;
+      },
+      showModalSenha() {
+        this.$refs['modalSenha'].show();
+      },
+      hideModalSenha() {
+        this.$refs['modalSenha'].hide();
+        this.resetCadastro();
       },
       msgSenha() {
         var msg = [];

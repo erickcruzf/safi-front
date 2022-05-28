@@ -19,11 +19,6 @@ const router = new Router({
             component: LoginView
         },
         {
-            path: '/:passwordRecoveryCode',
-            name: 'login2',
-            component: LoginView
-        },
-        {
             path: '/home',
             name: 'home',
             component: AreaLogada
@@ -37,7 +32,12 @@ const router = new Router({
             path: '/wallet/:walletId',
             name: 'wallet',
             component: CarteiraAberta
-        }
+        },
+        {
+            path: '/:passwordRecoveryCode',
+            name: 'login2',
+            component: LoginView
+        },
     ],
     mode: 'history'
 })
@@ -45,8 +45,11 @@ const router = new Router({
 // eslint-disable-next-line
 router.beforeEach((to, from, next) => {
     console.log("To: " + to.name);
-    if (to.name !== 'login' && to.name !== 'login2' && to.name !== 'validate' && !store.state.auth.status.loggedIn) next({ name: 'login' })
-    if ((to.name === 'login' || to.name !== 'login2' || to.name === "validate") && store.state.auth.status.loggedIn) next({ name: 'home' })
+
+    if (to.name === "home" && store.state.auth.status.loggedIn) next();
+    else if (to.name === "wallet" && store.state.auth.status.loggedIn) next();
+    else if (to.name !== 'login' && to.name !== 'login2' && to.name !== 'validate' && !store.state.auth.status.loggedIn) next({ name: 'login' })
+    else if ((to.name === 'login' || to.name !== 'login2' || to.name === "validate") && store.state.auth.status.loggedIn) next({ name: 'home' })
     
     else next()
     next();
