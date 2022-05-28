@@ -241,7 +241,7 @@ import authHeader from '../services/auth-header';
           this.showModalErro();
         }
         else if (statusCode === 400) {
-          this.errorMsg = error.response?.data?.message;
+          this.errorMsg = error.response.data.map(x => x.message).toString().replace(",", ", ");
           this.showModalErro();
         }
       },
