@@ -31,7 +31,7 @@
             <span class="d-flex flex-start pl-2">Email:</span>
             <b-form-input v-model="email" placeholder="exemplo@email.com.br"></b-form-input>
           </div>
-          <b-button id="buttonLogin" variant="outline-primary" class="w-25 inputsDinamicos buttonMain" @click="logar">Enviar Email</b-button>
+          <b-button id="buttonLogin" variant="outline-primary" class="w-25 inputsDinamicos buttonMain" @click="esqueciSenha">Enviar Email</b-button>
           <b-button id="buttonVoltar" variant="link" class="w-25 inputsDinamicos mt-2" @click="voltarLoginSenha">Voltar ao Login</b-button>
         </div>
 
@@ -224,12 +224,29 @@
             () => {
               this.showModal();
               this.passwordRecoveryCode = undefined;
+              this.senha = "";
             },
             error => {
               this.message = error?.toString() + " - " + error.response?.data[0]?.message;
+              this.senha = "";
             }
           );
         }
+      },
+      esqueciSenha() {
+        this.$store.dispatch('auth/forgot', JSON.stringify(
+          {
+            email: this.email
+          }
+        )).then(
+          () => {
+            this.showModal();
+            this.passwordRecoveryCode = undefined;
+          },
+          error => {
+            this.message = error?.toString() + " - " + error.response?.data[0]?.message;
+          }
+        );
       },
       showModal() {
         this.$refs['my-modal'].show();
