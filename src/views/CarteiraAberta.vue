@@ -240,6 +240,10 @@ import authHeader from '../services/auth-header';
           this.errorMsg = error.response?.data?.message?.split("Exception: ")[1];
           this.showModalErro();
         }
+        else if (statusCode === 400) {
+          this.errorMsg = error.response?.data?.message;
+          this.showModalErro();
+        }
       },
       confirmarNovaTransacao() {
         axios.post('transaction', JSON.stringify(
