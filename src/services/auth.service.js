@@ -4,10 +4,10 @@ class AuthService {
         return axios.post('user', userJSON);
     }
     forgot(userJSON) {
-        return axios.post('forgot', userJSON);
+        return axios.post('email/forgot', userJSON);
     }
     recover(userJSON) {
-        return axios.post('recover', userJSON);
+        return axios.post('email/recover', userJSON);
     }
     login(userJSON) {
         var parseJwt = function (token) {
