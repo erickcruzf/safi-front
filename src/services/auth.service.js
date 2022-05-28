@@ -3,6 +3,12 @@ class AuthService {
     register(userJSON) {
         return axios.post('user', userJSON);
     }
+    forgot(userJSON) {
+        return axios.post('forgot', userJSON);
+    }
+    recover(userJSON) {
+        return axios.post('recover', userJSON);
+    }
     login(userJSON) {
         var parseJwt = function (token) {
             var base64Url = token.split('.')[1];

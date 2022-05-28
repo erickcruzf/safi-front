@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="passwordRecoveryCode === undefined">
     <h1>Bem vindo ao</h1>
     <img alt="Safi Logo" src="@/assets/safiLogo.png" class="img-fluid">
     <div>
@@ -80,11 +80,44 @@
       </b-modal>
     </div>
   </div>
+  <div v-else>
+    <h1>Recuperação de senha</h1>
+    <img alt="Safi Logo" src="@/assets/safiLogo.png" class="img-fluid">
+    <div>
+      <div class="d-flex flex-column align-items-center">
+        <div class="mb-2 w-25 inputsDinamicos">
+          <span class="d-flex flex-start pl-2">Senha:
+            <b-icon id="spSenha" v-show="(senhasNaoBatem || senhaMenor) && senhaInvalida" icon="exclamation-lg" variant="warning"></b-icon>
+          </span>
+          <b-form-input v-model="senha" placeholder="************" type="password"></b-form-input>
+        </div>
+        <b-popover target="spSenha" triggers="hover" placement="auto" variant="warning">
+          <template #title>Senha Inválida</template>
+          <span v-for="(message,index) in listaMsg" :key="index">{{message}}<br></span>
+        </b-popover>
+        <div class="mb-2 w-25 inputsDinamicos">
+          <span class="d-flex flex-start pl-2">Confirme a Senha:
+            <b-icon id="spSenha2" v-show="(senhasNaoBatem || senhaMenor) && senhaInvalida" v-b-popover="'Popover inside a modal!'" icon="exclamation-lg" variant="warning"></b-icon>
+          </span>
+          <b-form-input v-model="confirmacaoSenha" placeholder="************" type="password"></b-form-input>
+        </div>
+        <b-popover target="spSenha2" triggers="hover" placement="auto" variant="warning">
+          <template #title>Senha Inválida</template>
+          <span v-for="(message,index) in listaMsg" :key="index">{{message}}<br></span>
+        </b-popover>
+        <b-button id="buttonRecuperarSenha" variant="outline-primary" class="w-25 inputsDinamicos buttonMain" @click="recover">Alterar Senha</b-button>
+      </div>
+      <b-modal ref="my-modal" hide-footer hide-header>
+        <div class="d-block text-center">
+          <h3>Senha Alterada Com Sucesso! Realize login para continuar.</h3>
+        </div>
+        <b-button class="mt-3" variant="outline-success" block @click="hideModal">Ok</b-button>
+      </b-modal>
+    </div>
+  </div>
 </template>
 
 <script>
-// eslint-disable-next-line
-import axios from 'axios';
   export default {
     name: 'LoginView',
     data() {
@@ -99,7 +132,8 @@ import axios from 'axios';
         senhaInvalida: false,
         stateCadastro: {Nome: null, Sobrenome: null, Email: null},
         loading: false,
-        message: ''
+        message: '',
+        passwordRecoveryCode: this.$route.params.passwordRecoveryCode
       }
     },
     methods: {
@@ -166,6 +200,32 @@ import axios from 'axios';
             },
             error => {
               this.loading = false;
+              this.message = error?.toString() + " - " + error.response?.data[0]?.message;
+            }
+          );
+        }
+      },
+      recover () {
+        this.message = "";
+        var valido = true;
+        
+        if(this.senhasNaoBatem || this.senhaMenor) {
+          this.senhaInvalida = true
+          valido = false;
+        }
+        if(valido) {
+          this.loading = true;
+          this.$store.dispatch('auth/recover', JSON.stringify(
+            {
+              code: this.passwordRecoveryCode,
+              password: this.senha
+            }
+          )).then(
+            () => {
+              this.showModal();
+              this.passwordRecoveryCode = undefined;
+            },
+            error => {
               this.message = error?.toString() + " - " + error.response?.data[0]?.message;
             }
           );

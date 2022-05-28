@@ -100,6 +100,12 @@
           <b-button class="mt-3" variant="outline-success" block @click="confirmCalculo">Calcular</b-button>
           <b-button class="mt-3" variant="outline-danger" block @click="hideModalCalculo">Cancelar</b-button>
         </b-modal>
+        <b-modal ref="erroModal" hide-footer hide-header>
+          <div class="d-block text-center">
+            <h3>{{errorMsg}}</h3>
+          </div>
+          <b-button class="mt-3" variant="outline-success" block @click="hideModalErro">Ok</b-button>
+        </b-modal>
     </div>
     <div class="mx-3 my-3" v-else>
       <h1 class="text-left">Resumo {{this.year}}</h1>
@@ -185,7 +191,8 @@ import authHeader from '../services/auth-header';
         year: new Date().getFullYear(),
         showResumo: false,
         transactionEdit: {},
-        allMonths: []
+        allMonths: [],
+        errorMsg: ""
       }
     },
     created() {
@@ -213,6 +220,27 @@ import authHeader from '../services/auth-header';
       hideModalCalculo() {
         this.$refs['calcularModal'].hide();
       },
+      showModalErro() {
+        this.$refs['erroModal'].show();
+      },
+      hideModalErro() {
+        this.$refs['erroModal'].hide();
+      },
+      handleError(error) {
+        console.log(error);
+        const statusCode = error.response ? error.response.status : null;
+        if (statusCode === 403) {
+          this.$store.dispatch('auth/logout').then(
+            () => {
+              this.$router.push('/');
+            }
+          );
+        }
+        else if (statusCode === 500) {
+          this.errorMsg = error.response?.data?.message?.split("Exception: ")[1];
+          this.showModalErro();
+        }
+      },
       confirmarNovaTransacao() {
         axios.post('transaction', JSON.stringify(
             {
@@ -228,15 +256,7 @@ import authHeader from '../services/auth-header';
             this.carregarTransacoes();
           })
           .catch(error => {
-            console.log(error);
-            const statusCode = error.response ? error.response.status : null;
-            if (statusCode === 403) {
-              this.$store.dispatch('auth/logout').then(
-                () => {
-                  this.$router.push('/');
-                }
-              );
-            }
+            this.handleError(error);
           })
           .finally(() => {
               
@@ -281,15 +301,7 @@ import authHeader from '../services/auth-header';
             this.allTransactions.splice(this.allTransactions.findIndex(x => x.id == this.transactionDelete.id), 1);
           })
           .catch((error) => {
-            console.log(error);
-            const statusCode = error.response ? error.response.status : null;
-            if (statusCode === 403) {
-              this.$store.dispatch('auth/logout').then(
-                () => {
-                  this.$router.push('/');
-                }
-              );
-            }
+            this.handleError(error);
           })
           .finally(() => {
             this.loadingWallets = false;
@@ -346,15 +358,7 @@ import authHeader from '../services/auth-header';
             this.carregarTransacoes();
           })
           .catch((error) => {
-            console.log(error);
-            const statusCode = error.response ? error.response.status : null;
-            if (statusCode === 403) {
-              this.$store.dispatch('auth/logout').then(
-                () => {
-                  this.$router.push('/');
-                }
-              );
-            }
+            this.handleError(error);
           })
           .finally(() => {
             this.cancelarEdicao(transaction);

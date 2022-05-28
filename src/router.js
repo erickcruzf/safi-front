@@ -19,6 +19,11 @@ const router = new Router({
             component: LoginView
         },
         {
+            path: '/:passwordRecoveryCode',
+            name: 'login2',
+            component: LoginView
+        },
+        {
             path: '/home',
             name: 'home',
             component: AreaLogada
@@ -40,8 +45,9 @@ const router = new Router({
 // eslint-disable-next-line
 router.beforeEach((to, from, next) => {
     console.log("To: " + to.name);
-    if (to.name !== 'login' && to.name !== 'validate' && !store.state.auth.status.loggedIn) next({ name: 'login' })
-    if (to.name === 'login' && store.state.auth.status.loggedIn) next({ name: 'home' })
+    if (to.name !== 'login' && to.name !== 'login2' && to.name !== 'validate' && !store.state.auth.status.loggedIn) next({ name: 'login' })
+    if ((to.name === 'login' || to.name !== 'login2' || to.name === "validate") && store.state.auth.status.loggedIn) next({ name: 'home' })
+    
     else next()
     next();
 })
